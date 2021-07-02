@@ -18,3 +18,7 @@ h1 {
   display: flex;
   margin: 0px;
 }
+
+.border {
+  border: 2px solid black;
+}

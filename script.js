@@ -8,7 +8,7 @@ function handleSearch(event){
     var user = input.val()
     console.log(user)
 
-    var apiUrl = 'https://api.openweathermap.org/data/2.5/forecast?q=' + user + ',us&appid=c371c3c576ed97f2a811b3246c1db709';
+    var apiUrl = 'https://api.openweathermap.org/data/2.5/forecast/daily?q=' + user + '&cnt=5&appid=09acfe60e2ff07c55a533797fe9efc93';
     console.log(apiUrl)
   fetch(apiUrl)
     .then(function (response) {
@@ -26,10 +26,26 @@ function handleSearch(event){
     //   alert('Unable to connect to Weather app');
     });
     function displayTemp(data, user){
-        var para = document.createElement('p');
-        para.textContent = data.list[0].main.temp
-        console.log(data.list[0].main.temp)
-        displayEl.append(para)
+        var city = document.createElement('p');
+        city.textContent = user
+        city.style.weight = "bold"
+        // displayEl.append(city)
+
+
+        var temp = document.createElement('p');
+        temp.textContent = data.list[0].main.temp
+        displayEl.append(temp)
+
+        var wind = document.createElement('p')
+        wind.textContent = data.list[0].wind.speed
+        console.log(wind)
+        displayEl.append(wind)
+
+        var humidity = document.createElement('p');
+        humidity.textContent = data.list[0].main.humidity
+        displayEl.append(humidity)
+
+        displayEl.addClass('border')
     }
 };
 
