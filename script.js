@@ -8,7 +8,7 @@ function handleSearch(event){
     var user = input.val()
     console.log(user)
 
-    var apiUrl = 'https://api.openweathermap.org/data/2.5/forecast/daily?q=' + user + '&cnt=5&appid=09acfe60e2ff07c55a533797fe9efc93';
+    var apiUrl = 'https://api.openweathermap.org/data/2.5/forecast?q=' + user + '&appid=c371c3c576ed97f2a811b3246c1db709';
     console.log(apiUrl)
   fetch(apiUrl)
     .then(function (response) {
@@ -29,7 +29,7 @@ function handleSearch(event){
         var city = document.createElement('p');
         city.textContent = user
         city.style.weight = "bold"
-        // displayEl.append(city)
+        displayEl.append(city)
 
 
         var temp = document.createElement('p');
