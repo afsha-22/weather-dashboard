@@ -1,3 +1,4 @@
+// variable declaration
 var searchCity = $("#search-city");
 var searchButton = $("#search-button");
 var clearButton = $("#clear-history");
@@ -12,52 +13,35 @@ var sCity = [];
 //Set up the API key
 const APIKey = "c371c3c576ed97f2a811b3246c1db709";
 
-// function handleSearch(event){
-//     console.log("sdf")
-//     event.preventDefault()
-//     var user = input.val()
-//     console.log(user)
+//Call function on page load
+// $(window).on("load", loadlastCity);
 
-//     var apiUrl = 'https://api.openweathermap.org/data/2.5/forecast?q=' + user + '&appid=c371c3c576ed97f2a811b3246c1db709';
-//     console.log(apiUrl)
-//   fetch(apiUrl)
-//     .then(function (response) {
-//       if (response.ok) {
-//         console.log(response);
-//         response.json().then(function (data) {
-//           console.log(data);
-//           displayTemp(data, user);
-//         });
-//       } else {
-//         // alert('Error: ' + response.statusText);
-//       }
-//     })
-//     .catch(function (error) {
-//     //   alert('Unable to connect to Weather app');
-//     });
-//     function displayTemp(data, user){
-//         var city = document.createElement('p');
-//         city.textContent = user
-//         city.style.weight = "bold"
-//         displayEl.append(city)
+//Click Handlers
+$("#search-button").on("click", displayWeather);
+$(".list-group").on("click", invokePastSearch);
+$("#clear-history").on("click", clearHistory);
 
+// function runs on load of the page and renders the page
+function loadlastCity() {
+  $("#div-weather").hide();
+  $("ul").empty();
+  //Get all cities stored in the local storage as part of previous searches
+  var sCity = JSON.parse(localStorage.getItem("cityname"));
+  if (sCity !== null) {
+    //For each previously searched city, add city to the unordered list.
+    for (i = 0; i < sCity.length; i++) {
+      addToList(sCity[i]);
+    }
+    //Set city to the last city searched in the local storage
+    city = sCity[i - 1];
 
-//         var temp = document.createElement('p');
-//         temp.textContent = data.list[0].main.temp
-//         displayEl.append(temp)
+    //Show weather forecase div if city is available on page load
+    $("#div-weather").show();
 
-//         var wind = document.createElement('p')
-//         wind.textContent = data.list[0].wind.speed
-//         console.log(wind)
-//         displayEl.append(wind)
-
-//         var humidity = document.createElement('p');
-//         humidity.textContent = data.list[0].main.humidity
-//         displayEl.append(humidity)
-
-//         displayEl.addClass('border')
-//     }
-// };
+    //Call current weather for the last city searched.
+    currentWeather(city);
+  }
+}
 
 // Display the curent and future weather to the user after grabing the city form the input text box.
 function displayWeather(event) {
@@ -68,6 +52,10 @@ function displayWeather(event) {
     currentWeather(city);
   }
 }
+
+/*Here we make the API call using FETCH, 
+//passing the last city from the local storage as 
+the city parameter to the API call*/
 
 function currentWeather(city) {
   // Here we build the URL so we can get a data from server side.
@@ -148,7 +136,92 @@ function currentWeather(city) {
     });
 }
 
+// This function returns the UVIindex response.
+function UVIndex(longitude, latitude) {
+  //lets build the url for uvindex.
+  var queryURL =
+    "https://api.openweathermap.org/data/2.5/uvi?appid=" +
+    APIKey +
+    "&lat=" +
+    latitude +
+    "&lon=" +
+    longitude;
+  fetch(queryURL)
+    .then(function (response) {
+      return response.json();
+    })
+    .then(function (data) {
+      $(currentUvindex).html(data.value);
+    });
+}
 
-$("#search-button").on("click", displayWeather);
-$(".list-group").on("click", invokePastSearch);
-$("#clear-history").on("click", clearHistory);
+// Here we display the 5 days forecast for the current city.
+function forecast(cityid) {
+  var queryURL =
+    "https://api.openweathermap.org/data/2.5/forecast?id=" +
+    cityid +
+    "&units=metric" +
+    "&appid=" +
+    APIKey;
+  fetch(queryURL)
+    .then(function (response) {
+      return response.json();
+    })
+    .then(function (data) {
+      /*For loop to find the right index for the list as the API responds with 
+      forecast of 5 days in 3 hour intervals*/
+      for (i = 0; i < 5; i++) {
+// Using Moment to convert Unix date to specific format
+       var date = moment.unix(data.list[(i + 1) * 8 - 1].dt).format("DD/MM/YYYY");
+        var iconcode = data.list[(i + 1) * 8 - 1].weather[0].icon;
+        var iconurl = "https://openweathermap.org/img/wn/" + iconcode + ".png";
+        var tempC = data.list[(i + 1) * 8 - 1].main.temp.toFixed(2);
+        var humidity = data.list[(i + 1) * 8 - 1].main.humidity;
+
+        $("#fDate" + i).html(date);
+        $("#fImg" + i).html("<img src=" + iconurl + ">");
+        $("#fTemp" + i).html(tempC + " &#8451");
+        $("#fHumidity" + i).html(humidity + "%");
+      }
+    });
+}
+
+// searches the city to see if it exists in the entries from the storage
+function findInStorage(city) {
+  for (var i = 0; i < sCity.length; i++) {
+    if (city.toUpperCase() === sCity[i]) {
+      return -1;
+    }
+  }
+  return 1;
+}
+
+//Daynamically add the passed city on the search history
+function addToList(c) {
+  var listEl = $("<li>" + c.toUpperCase() + "</li>");
+  $(listEl).attr("class", "list-group-item");
+  $(listEl).attr("data-value", c.toUpperCase());
+  $(".list-group").append(listEl);
+}
+
+// display the past search again when the list group item is clicked in search history
+function invokePastSearch(event) {
+  var liEl = event.target;
+  //Update the selected item to active and all siblings to inactive
+  $(event.target).attr("class", " list-group-item active");
+  $(event.target)
+    .siblings()
+    .attr("class", "list-group-item list-group-item-secondary");
+  if (event.target.matches("li")) {
+    city = liEl.textContent.trim();
+    currentWeather(city);
+  }
+}
+
+//Clear the search history from the page
+function clearHistory(event) {
+  event.preventDefault();
+  sCity = [];
+  localStorage.removeItem("cityname");
+  document.location.reload();
+}
