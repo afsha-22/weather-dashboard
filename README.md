@@ -4,7 +4,7 @@
 
 Link: https://afsha-22.github.io/weather-dashboard/
 
-![The Weather Dashboard application provides the capability to check current weather condition.](./assets/demo.gif)
+![The Weather Dashboard application provides the capability to check current weather condition.](./assets/demo.png)
 
 > **Note**: The above mockup image is not the true representation of the actual page. Please visit the above link to experience the actual design and functionalities.
 
